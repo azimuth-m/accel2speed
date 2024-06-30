@@ -3,7 +3,7 @@
 #include "esp_intr_alloc.h"
 #include "spi_comms.h"
 
-esp_err_t accspi::Spi::Init(
+esp_err_t accspi::Spi::init(
         const spi_host_device_t spi_peripheral,
         const int pin_mosi,
         const int pin_miso,
@@ -29,7 +29,7 @@ esp_err_t accspi::Spi::Init(
     return status;
 };
 
-esp_err_t accspi::Spi::RegisterDevice(
+esp_err_t accspi::Spi::registerDevice(
         const uint8_t mode,
         const int cs_pin,
         const uint8_t command_lenght,
@@ -70,7 +70,8 @@ esp_err_t accspi::Spi::transferByte(
         const uint8_t data,
         const uint8_t command) {
 
-    accspi::Spi::spi_transaction_.flags = SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA;
+    accspi::Spi::spi_transaction_.flags =
+            SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA;
     accspi::Spi::spi_transaction_.cmd = command;
     accspi::Spi::spi_transaction_.length = 8;
     accspi::Spi::spi_transaction_.addr = reg_address;
@@ -79,7 +80,7 @@ esp_err_t accspi::Spi::transferByte(
     return spi_device_transmit(handle_, &spi_transaction_);
 }
 
-uint8_t accspi::Spi::ReadRegister(
+uint8_t accspi::Spi::readRegister(
         const uint8_t reg_address,
         const uint8_t command) {
 

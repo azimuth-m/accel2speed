@@ -29,14 +29,14 @@ private:
             const uint8_t command = 0);
 
 public:
-    esp_err_t Init(
+    esp_err_t init(
             const spi_host_device_t spi_peripheral,
             const int pin_mosi,
             const int pin_miso,
             const int pin_sclk);
 
     // Mode is 0 to 3 (00, 01, 10, 11)
-    esp_err_t RegisterDevice(
+    esp_err_t registerDevice(
             const uint8_t mode,
             const int cs_pin,
             const uint8_t command_lenght,
@@ -61,28 +61,28 @@ public:
 // SPI_TRANS_MULTILINE_ADDR          The data lines used at address phase is the same as data phase (otherwise, only one data line is used at address phase)
 // SPI_TRANS_DMA_BUFFER_ALIGN_MANUAL By default driver will automatically re-alloc dma buffer if it doesn't meet hardware alignment or dma_capable requirements, this flag is for you to disable this feature, you will need to take care of the alignment otherwise driver will return you error ESP_ERR_INVALID_ARG
 
-    uint8_t ReadRegister(
+    uint8_t readRegister(
             const uint8_t reg_addr,
             const uint8_t command = 0);
 
-    esp_err_t WriteRegister(
+    esp_err_t writeRegister(
             const uint8_t reg_addr,
             const uint8_t reg_data,
             const uint8_t command = 0);
 
-    esp_err_t WriteRegisterMultipleBytes(
+    esp_err_t writeRegisterMultipleBytes(
             const uint8_t reg_addr,
             uint8_t* reg_data_buffer,
             const uint8_t byte_count,
             const uint8_t command = 0);
 
-    esp_err_t ReadRegisterMultipleBytes(
+    esp_err_t readRegisterMultipleBytes(
             const uint8_t reg_addr,
             uint8_t* reg_data_buffer,
             const uint8_t byte_count,
             const uint8_t command = 0);
 
-    spi_device_handle_t GetHandle(void);
+    spi_device_handle_t getHandle(void);
 
 }; // class Spi
 } // namespace ACCSPI
