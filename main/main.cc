@@ -28,9 +28,9 @@ extern "C" void app_main(void) {
     if (ESP_OK != rc) {
         ESP_LOGD(
                 "main",
-                "In function %s:                                                                    \
+                "In function %s:                                                                   \
                     Failed to initialize spi communications. Return code: %d",
-                 __func__, rc); // DEVID CONTENT SHOULD BE 0xE5
+                __func__, rc); // DEVID CONTENT SHOULD BE 0xE5
     }
 
     comms.RegisterDevice(SPI_MODE, CS_V, 8, 8, 0, 100, 0, 0, 0);
