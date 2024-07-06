@@ -81,8 +81,5 @@ public:
             uint8_t* reg_data_buffer,
             const uint8_t byte_count,
             const uint8_t command = 0);
-
-    spi_device_handle_t getHandle(void);
-
 }; // class Spi
 } // namespace ACCSPI

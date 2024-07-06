@@ -87,3 +87,22 @@ uint8_t accspi::Spi::readRegister(
     accspi::Spi::transferByte(reg_address, 0, command);
     return accspi::Spi::spi_transaction_.rx_data[0];
 }
+
+esp_err_t accspi::Spi::writeRegister(
+        const uint8_t reg_addr,
+        const uint8_t reg_data,
+        const uint8_t command) {
+
+    esp_err_t status{ESP_OK};
+    status |= transferByte(reg_addr, reg_data, command);
+    return status;
+}
+
+esp_err_t accspi::Spi::writeRegisterMultipleBytes(
+        const uint8_t reg_addr,
+        uint8_t* reg_data_buffer,
+        const uint8_t byte_count,
+        const uint8_t command) {
+    return transferMultiplesBytes(
+            reg_addr, reg_data_buffer, nullptr, byte_count, command);
+}
