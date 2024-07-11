@@ -3,6 +3,7 @@
 #include "esp_err.h"
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
+#include "ADXL345.h"
 
 namespace accspi {
 
@@ -19,14 +20,14 @@ private:
     esp_err_t transferByte(
             const uint8_t reg_addr,
             const uint8_t data,
-            const uint8_t command = 0);
+            const uint8_t command = CMD_READ);
 
     esp_err_t transferMultiplesBytes(
             const uint8_t reg_addr,
             uint8_t* tx_buf,
             uint8_t* rx_buf,
             size_t data_length,
-            const uint8_t command = 0);
+            const uint8_t command = CMD_READ);
 
 public:
     esp_err_t init(

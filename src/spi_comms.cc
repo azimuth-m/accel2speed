@@ -50,6 +50,7 @@ esp_err_t accspi::Spi::registerDevice(
     spi_interface_cfg_.clock_speed_hz = bus_speed;
     spi_interface_cfg_.mode = mode;
 
+
     spi_interface_cfg_.spics_io_num = cs_pin;
     spi_interface_cfg_.cs_ena_pretrans=cs_ena_pretrans;
     spi_interface_cfg_.cs_ena_posttrans=cs_ena_posttrans;
@@ -73,7 +74,7 @@ esp_err_t accspi::Spi::transferByte(
     accspi::Spi::spi_transaction_.flags =
             SPI_TRANS_USE_RXDATA | SPI_TRANS_USE_TXDATA;
     accspi::Spi::spi_transaction_.cmd = command;
-    accspi::Spi::spi_transaction_.length = 8;
+    accspi::Spi::spi_transaction_.length = TRANS_BITS;
     accspi::Spi::spi_transaction_.addr = reg_address;
     accspi::Spi::spi_transaction_.tx_data[0] = data;
 

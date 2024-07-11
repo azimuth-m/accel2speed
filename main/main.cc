@@ -28,7 +28,7 @@ extern "C" void app_main(void) {
             MOSI_V,
             MISO_V,
             SCLK_V);
-    rc |= comms.registerDevice(SPI_MODE, CS_V, 8, 8, 0, 100, 0, 0, 0);
+    rc |= comms.registerDevice(SPI_MODE, CS_V, CMD_BITS, ADR_BITS, 0, 100, 0, 0, 0);
     if (ESP_OK != rc) {
         ESP_LOGD("main",
                 "In function %s:                                               \
@@ -40,19 +40,51 @@ extern "C" void app_main(void) {
      * Verify that the read register, containing the device id,
      * holds the correct value
      */
-    const uint8_t deviceId = comms.readRegister(REG_DEVID);
-    if (DEVID != deviceId) {
-        ESP_LOGE("main",
-                "In function %s: \
-                    Register REG_DEVID [0x%02X] holds invalid data: 0x%02X \
-                    Should be 0x%02X",
-                    __func__, REG_DEVID, deviceId, DEVID);
-    } else {
-        ESP_LOGI("main", "Register Device Id [0x%02X] == 0x%02X. OK!",
-                REG_DEVID, deviceId);
-    }
+    std::bitset<8> asd;
+
+    // asd = comms.readRegister(REG_DEVID | (1u << 7));
+    // std::cout << "Reg devid: " << asd << std::endl;
+
+    // asd = comms.readRegister(REG_POWER_CTL | (1u << 7));
+    // std::cout << "Reg power control: " << asd << std::endl;
+
+    // comms.writeRegister(0x2c, 0x8c);
+    // powerControl = comms.readRegister(REG_POWER_CTL | (1u << 7));
+    // printf("Reg power control: %x\n", powerControl);
+
+    // asd = comms.readRegister(REG_DEVID , 2);
+    // std::cout << "Reg devid: " << asd << std::endl;
+
+    asd = comms.readRegister(REG_POWER_CTL , CMD_READ);
+    std::cout << "Reg rate: " << asd << std::endl;
+    asd = comms.readRegister(0x2d, CMD_READ);
+    std::cout << "Reg power control: " << asd << std::endl;
+
+    comms.writeRegister(0x2c, (1u << 3), CMD_WRITE);
+    comms.writeRegister(0x2d, (1u << 3), CMD_WRITE);
+    
+    asd = comms.readRegister(REG_POWER_CTL , CMD_READ);
+    std::cout << "rate: " << asd << std::endl;
+    asd = comms.readRegister(0x2D , CMD_READ);
+    std::cout << "Reg power control: " << asd << std::endl;
+
+    // if (DEVID != deviceId) {
+    //     ESP_LOGE("main",
+    //             "In function %s:
+    //                 Register REG_DEVID [0x%02X] holds invalid data: 0x%02X
+    //                 Should be 0x%02X",
+    //                 __func__, REG_DEVID, deviceId, DEVID);
+    // } else {
+    //     ESP_LOGI("main", "Register Device Id [0x%02X] == 0x%02X. OK!",
+    //             REG_DEVID, deviceId);
+    // }
 
     /* Main program loop section */
     while (true) {
+        std::bitset<16> xdata;
+        xdata = comms.readRegister(REG_DATA_X0 , CMD_READ);
+        xdata <<= 8;
+        xdata |= comms.readRegister(REG_DATA_X1 , CMD_READ);
+        std::cout << "xdata: " << xdata << std::endl;
     }
 }
