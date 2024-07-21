@@ -3,7 +3,7 @@
 #include "esp_intr_alloc.h"
 #include "spi_comms.h"
 
-esp_err_t accspi::Spi::init(
+esp_err_t accspi::Spi::Init(
         const spi_host_device_t spi_peripheral,
         const int pin_mosi,
         const int pin_miso,
@@ -29,7 +29,7 @@ esp_err_t accspi::Spi::init(
     return status;
 };
 
-esp_err_t accspi::Spi::registerDevice(
+esp_err_t accspi::Spi::RegisterDevice(
         const uint8_t mode,
         const int cs_pin,
         const uint8_t command_lenght,
@@ -66,7 +66,7 @@ esp_err_t accspi::Spi::registerDevice(
     return status;
 }
 
-esp_err_t accspi::Spi::transferByte(
+esp_err_t accspi::Spi::TransferByte(
         const uint8_t reg_address,
         const uint8_t data,
         const uint8_t command) {
@@ -81,29 +81,29 @@ esp_err_t accspi::Spi::transferByte(
     return spi_device_transmit(handle_, &spi_transaction_);
 }
 
-uint8_t accspi::Spi::readRegister(
+uint8_t accspi::Spi::ReadRegister(
         const uint8_t reg_address,
         const uint8_t command) {
 
-    accspi::Spi::transferByte(reg_address, 0, command);
+    accspi::Spi::TransferByte(reg_address, 0, command);
     return accspi::Spi::spi_transaction_.rx_data[0];
 }
 
-esp_err_t accspi::Spi::writeRegister(
+esp_err_t accspi::Spi::WriteRegister(
         const uint8_t reg_addr,
         const uint8_t reg_data,
         const uint8_t command) {
 
     esp_err_t status{ESP_OK};
-    status |= transferByte(reg_addr, reg_data, command);
+    status |= TransferByte(reg_addr, reg_data, command);
     return status;
 }
 
-esp_err_t accspi::Spi::writeRegisterMultipleBytes(
+esp_err_t accspi::Spi::WriteRegisterMultipleBytes(
         const uint8_t reg_addr,
         uint8_t* reg_data_buffer,
         const uint8_t byte_count,
         const uint8_t command) {
-    return transferMultiplesBytes(
+    return TransferMultiplesBytes(
             reg_addr, reg_data_buffer, nullptr, byte_count, command);
 }

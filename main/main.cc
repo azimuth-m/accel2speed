@@ -1,13 +1,16 @@
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-
-#include "spi_comms.h"
-#include "ADXL345.h"
 #include <cstdint>
 #include <cinttypes>
 #include <bitset>
 #include <iostream>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "driver/gpio.h"
+#include "esp_log.h"
+
+#include "spi_comms.h"
+#include "ADXL345.h"
+#include "my_gpio.h"
 
 extern "C" void app_main(void) {
     /* Init Section */
@@ -16,6 +19,8 @@ extern "C" void app_main(void) {
     constexpr int SCLK_V = 18;
     constexpr int CS_V   = 5;
 
+    accgpio::GpioOutput pin2(GPIO_NUM_2, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE);
+
     accspi::Spi comms;
     esp_err_t rc = ESP_OK;
 
@@ -23,12 +28,12 @@ extern "C" void app_main(void) {
     // SPI2 is HSPI
     // SPI3 is VSPI
 
-    rc |= comms.init(
+    rc |= comms.Init(
             SPI3_HOST,
             MOSI_V,
             MISO_V,
             SCLK_V);
-    rc |= comms.registerDevice(SPI_MODE, CS_V, CMD_BITS, ADR_BITS, 0, 100, 0, 0, 0);
+    rc |= comms.RegisterDevice(SPI_MODE, CS_V, CMD_BITS, ADR_BITS, 0, 100, 0, 0, 0);
     if (ESP_OK != rc) {
         ESP_LOGD("main",
                 "In function %s:                                               \
@@ -55,17 +60,17 @@ extern "C" void app_main(void) {
     // asd = comms.readRegister(REG_DEVID , 2);
     // std::cout << "Reg devid: " << asd << std::endl;
 
-    asd = comms.readRegister(REG_POWER_CTL , CMD_READ);
+    asd = comms.ReadRegister(REG_POWER_CTL , CMD_READ);
     std::cout << "Reg rate: " << asd << std::endl;
-    asd = comms.readRegister(0x2d, CMD_READ);
+    asd = comms.ReadRegister(0x2d, CMD_READ);
     std::cout << "Reg power control: " << asd << std::endl;
 
-    comms.writeRegister(0x2c, (1u << 3), CMD_WRITE);
-    comms.writeRegister(0x2d, (1u << 3), CMD_WRITE);
-    
-    asd = comms.readRegister(REG_POWER_CTL , CMD_READ);
+    comms.WriteRegister(0x2c, (1u << 3), CMD_WRITE);
+    comms.WriteRegister(0x2d, (1u << 3), CMD_WRITE);
+
+    asd = comms.ReadRegister(REG_POWER_CTL , CMD_READ);
     std::cout << "rate: " << asd << std::endl;
-    asd = comms.readRegister(0x2D , CMD_READ);
+    asd = comms.ReadRegister(0x2D , CMD_READ);
     std::cout << "Reg power control: " << asd << std::endl;
 
     // if (DEVID != deviceId) {
@@ -81,10 +86,14 @@ extern "C" void app_main(void) {
 
     /* Main program loop section */
     while (true) {
-        std::bitset<16> xdata;
-        xdata = comms.readRegister(REG_DATA_X0 , CMD_READ);
-        xdata <<= 8;
-        xdata |= comms.readRegister(REG_DATA_X1 , CMD_READ);
-        std::cout << "xdata: " << xdata << std::endl;
+        // std::bitset<16> xdata;
+        // xdata = comms.ReadRegister(REG_DATA_X0 , CMD_READ);
+        // xdata <<= 8;
+        // xdata |= comms.ReadRegister(REG_DATA_X1 , CMD_READ);
+        // std::cout << "xdata: " << xdata << std::endl;
+
+    // std::cout << "PIN 4 STATE: " << pin4.Read() << std::endl;
+    sleep(1);
+    pin2.Toggle();
     }
 }

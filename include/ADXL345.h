@@ -1,3 +1,5 @@
+#pragma once
+
 #define SPI_MODE        (0x03u)
 
 #define CMD_BITS        (0x02u)

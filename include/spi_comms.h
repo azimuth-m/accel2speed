@@ -17,12 +17,12 @@ private:
 
     spi_transaction_t               spi_transaction_{};
 
-    esp_err_t transferByte(
+    esp_err_t TransferByte(
             const uint8_t reg_addr,
             const uint8_t data,
             const uint8_t command = CMD_READ);
 
-    esp_err_t transferMultiplesBytes(
+    esp_err_t TransferMultiplesBytes(
             const uint8_t reg_addr,
             uint8_t* tx_buf,
             uint8_t* rx_buf,
@@ -30,14 +30,14 @@ private:
             const uint8_t command = CMD_READ);
 
 public:
-    esp_err_t init(
+    esp_err_t Init(
             const spi_host_device_t spi_peripheral,
             const int pin_mosi,
             const int pin_miso,
             const int pin_sclk);
 
     // Mode is 0 to 3 (00, 01, 10, 11)
-    esp_err_t registerDevice(
+    esp_err_t RegisterDevice(
             const uint8_t mode,
             const int cs_pin,
             const uint8_t command_lenght,
@@ -62,22 +62,22 @@ public:
 // SPI_TRANS_MULTILINE_ADDR          The data lines used at address phase is the same as data phase (otherwise, only one data line is used at address phase)
 // SPI_TRANS_DMA_BUFFER_ALIGN_MANUAL By default driver will automatically re-alloc dma buffer if it doesn't meet hardware alignment or dma_capable requirements, this flag is for you to disable this feature, you will need to take care of the alignment otherwise driver will return you error ESP_ERR_INVALID_ARG
 
-    uint8_t readRegister(
+    uint8_t ReadRegister(
             const uint8_t reg_addr,
             const uint8_t command = 0);
 
-    esp_err_t writeRegister(
+    esp_err_t WriteRegister(
             const uint8_t reg_addr,
             const uint8_t reg_data,
             const uint8_t command = 0);
 
-    esp_err_t writeRegisterMultipleBytes(
+    esp_err_t WriteRegisterMultipleBytes(
             const uint8_t reg_addr,
             uint8_t* reg_data_buffer,
             const uint8_t byte_count,
             const uint8_t command = 0);
 
-    esp_err_t readRegisterMultipleBytes(
+    esp_err_t ReadRegisterMultipleBytes(
             const uint8_t reg_addr,
             uint8_t* reg_data_buffer,
             const uint8_t byte_count,
