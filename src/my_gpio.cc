@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "my_gpio.h"
+#include "esp_event.h"
 
 /* WARNING:
  * Using pullup and pulldown at the same time is not guarded.
@@ -10,6 +11,23 @@
 
 /* GpioInput */
 /******************************************************************************/
+
+/* Init static vars */
+bool accgpio::GpioInput::s_interruptServiceInstalled = false;
+
+/* Define event base */
+ESP_EVENT_DEFINE_BASE(INPUT_EVENTS);
+
+/* ISR */
+/* Currently takes pin number as an argument */
+void IRAM_ATTR accgpio::GpioInput::ISRCallback(void* args) {
+        int32_t pin = reinterpret_cast<int32_t>(args);
+
+        /* Pose event to System Event Loop in INPUT_EVENTS group */
+        esp_event_isr_post(INPUT_EVENTS, pin, nullptr, 0, nullptr);
+}
+/******************************************************************************/
+
 accgpio::GpioInput::GpioInput(
         const gpio_num_t pin,
         const gpio_pullup_t pu,
@@ -30,6 +48,41 @@ accgpio::GpioInput::GpioInput(
 int32_t accgpio::GpioInput::Read() {
     return gpio_get_level(pin_);
 }
+
+/* Interrupt related*/
+/******************************************************************************/
+esp_err_t accgpio::GpioInput::EnableInterrupt(gpio_int_type_t intType) {
+    esp_err_t rc = ESP_OK;
+
+    if (!s_interruptServiceInstalled) {
+        rc = gpio_install_isr_service(0);
+        if (ESP_OK == rc) {
+            s_interruptServiceInstalled = true;
+        }
+    }
+
+    if (ESP_OK == rc) {
+        rc = gpio_set_intr_type(pin_, intType);
+    }
+
+    if (ESP_OK == rc) {
+        rc = gpio_isr_handler_add(pin_, ISRCallback, (void*) pin_);
+    }
+    return rc;
+}
+
+esp_err_t accgpio::GpioInput::SetEventHandler(esp_event_handler_t eventHandler) {
+    esp_err_t rc = ESP_OK;
+    rc = esp_event_handler_instance_register(
+            INPUT_EVENTS, pin_, eventHandler, 0, nullptr);
+
+    if (ESP_OK == rc) {
+        eventHandlerSet_ = true;
+    }
+
+    return rc;
+}
+
 /******************************************************************************/
 
 /* GpioOutput */
@@ -59,3 +112,4 @@ esp_err_t accgpio::GpioOutput::SetLevel(int32_t level)
 {
     return gpio_set_level(pin_, level_);
 }
+

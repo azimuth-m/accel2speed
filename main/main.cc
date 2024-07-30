@@ -18,6 +18,7 @@ extern "C" void app_main(void) {
     constexpr int MISO_V = 19;
     constexpr int SCLK_V = 18;
     constexpr int CS_V   = 5;
+    constexpr int INT_DATA_READY = 21;
 
     accgpio::GpioOutput pin2(GPIO_NUM_2, GPIO_PULLUP_DISABLE, GPIO_PULLDOWN_DISABLE);
 
