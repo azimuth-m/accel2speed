@@ -1,7 +1,7 @@
-#include <cassert>
-
-#include "my_gpio.h"
+#include "BaseGpio.h"
+#include "InputGpio.h"
 #include "esp_event.h"
+#include "esp_log.h"
 
 /* WARNING:
  * Using pullup and pulldown at the same time is not guarded.
@@ -9,18 +9,14 @@
  * Refrein from using pullup and pulldown at the same time.
  */
 
-/* GpioInput */
-/******************************************************************************/
+bool accgpio::InputGpio::s_interruptServiceInstalled = false;
 
-/* Init static vars */
-bool accgpio::GpioInput::s_interruptServiceInstalled = false;
-
-/* Define event base */
-ESP_EVENT_DEFINE_BASE(INPUT_EVENTS);
+/* DEFINE event base */
+ESP_EVENT_DEFINE_BASE(accgpio::INPUT_EVENTS);
 
 /* ISR */
 /* Currently takes pin number as an argument */
-void IRAM_ATTR accgpio::GpioInput::ISRCallback(void* args) {
+void IRAM_ATTR accgpio::InputGpio::ISRCallback(void* args) {
         int32_t pin = reinterpret_cast<int32_t>(args);
 
         /* Pose event to System Event Loop in INPUT_EVENTS group */
@@ -28,7 +24,7 @@ void IRAM_ATTR accgpio::GpioInput::ISRCallback(void* args) {
 }
 /******************************************************************************/
 
-accgpio::GpioInput::GpioInput(
+accgpio::InputGpio::InputGpio(
         const gpio_num_t pin,
         const gpio_pullup_t pu,
         const gpio_pulldown_t pd) {
@@ -45,13 +41,13 @@ accgpio::GpioInput::GpioInput(
     gpio_config(&cfg);
 }
 
-int32_t accgpio::GpioInput::Read() {
+int32_t accgpio::InputGpio::Read() {
     return gpio_get_level(pin_);
 }
 
 /* Interrupt related*/
 /******************************************************************************/
-esp_err_t accgpio::GpioInput::EnableInterrupt(gpio_int_type_t intType) {
+esp_err_t accgpio::InputGpio::EnableInterrupt(gpio_int_type_t intType) {
     esp_err_t rc = ESP_OK;
 
     if (!s_interruptServiceInstalled) {
@@ -71,45 +67,19 @@ esp_err_t accgpio::GpioInput::EnableInterrupt(gpio_int_type_t intType) {
     return rc;
 }
 
-esp_err_t accgpio::GpioInput::SetEventHandler(esp_event_handler_t eventHandler) {
+esp_err_t accgpio::InputGpio::SetEventHandler(
+        esp_event_handler_t eventHandler) {
     esp_err_t rc = ESP_OK;
     rc = esp_event_handler_instance_register(
             INPUT_EVENTS, pin_, eventHandler, 0, nullptr);
 
     if (ESP_OK == rc) {
         eventHandlerSet_ = true;
+    } else {
+        ESP_LOGE("InputGpio",
+                "In function %s: Unable to set event handler. %s", __func__,
+                esp_err_to_name(rc));
     }
 
     return rc;
 }
-
-/******************************************************************************/
-
-/* GpioOutput */
-accgpio::GpioOutput::GpioOutput(
-        const gpio_num_t pin,
-        const gpio_pullup_t pu,
-        const gpio_pulldown_t pd) {
-
-        pin_ = pin;
-
-        gpio_config_t cfg;
-        cfg.pin_bit_mask = 1ULL << pin;
-        cfg.mode = GPIO_MODE_OUTPUT;
-        cfg.pull_up_en = pu;
-        cfg.pull_down_en = pd;
-        cfg.intr_type = GPIO_INTR_DISABLE;
-
-        gpio_config(&cfg);
-}
-
-esp_err_t accgpio::GpioOutput::Toggle() {
-    level_ = level_ ? 0 : 1;
-    return gpio_set_level(pin_, level_ ? 1 : 0);
-}
-
-esp_err_t accgpio::GpioOutput::SetLevel(int32_t level)
-{
-    return gpio_set_level(pin_, level_);
-}
-

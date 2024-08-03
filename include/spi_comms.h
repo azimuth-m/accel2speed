@@ -3,7 +3,7 @@
 #include "esp_err.h"
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
-#include "ADXL345.h"
+#include "adxl345.h"
 
 namespace accspi {
 

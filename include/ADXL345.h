@@ -29,3 +29,14 @@
 
 
 #define DEVID               (0xE5u)
+
+// class Adxl345 {
+// private:
+//     Adxl345_();
+//     accspi::Spi comm_;
+
+// public:
+//     static esp_err_t Init(
+//         int mosi, int miso, int sclk, int cs,
+//         int int_data_rdy);
+// }
