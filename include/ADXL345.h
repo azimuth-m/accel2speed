@@ -9,11 +9,15 @@
 #define CMD_WRITE       (0b00u)
 #define CMD_WRITE_BURST (0b01u)
 #define CMD_READ        (0b10u)
-#define CMD_BURST       (0b11u)
+#define CMD_READ_BURST  (0b11u)
 
 
 #define REG_DEVID       (0x00u)
-#define REG_POWER_CTL   (0x2Cu)
+#define REG_BW_RATE     (0x2Cu)
+#define REG_POWER_CTL   (0x2Du)
+#define REG_INT_ENABLE  (0x2Eu) /* | (1ULL << 7) to enable DATA_READY int out */
+#define REG_INT_MAP     (0x2Fu) /* & ~(1ULL << 7) set data out to be int1 pin */
+#define REG_FIFO_CTL    (0x38u)
 
 /* Aceleration data registers.
  * X0 - Lower byte
@@ -26,7 +30,6 @@
 #define REG_DATA_Y1     (0x35u)
 #define REG_DATA_Z0     (0x36u)
 #define REG_DATA_Z1     (0x37u)
-
 
 #define DEVID               (0xE5u)
 

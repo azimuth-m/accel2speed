@@ -27,7 +27,9 @@ public:
 
     /* Interrupt related */
     esp_err_t EnableInterrupt(gpio_int_type_t intType);
-    esp_err_t SetEventHandler(esp_event_handler_t eventHandler);
+    esp_err_t SetEventHandler(
+            esp_event_handler_t eventHandler,
+            void* eventHandlerArgs = 0);
 
     /* Interrupt sub/service routine. Requires being the in the instruction RAM
      * Only one instance in the same memory location.

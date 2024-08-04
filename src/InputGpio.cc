@@ -68,10 +68,11 @@ esp_err_t accgpio::InputGpio::EnableInterrupt(gpio_int_type_t intType) {
 }
 
 esp_err_t accgpio::InputGpio::SetEventHandler(
-        esp_event_handler_t eventHandler) {
+        esp_event_handler_t eventHandler,
+        void* eventHandlerArgs) {
     esp_err_t rc = ESP_OK;
     rc = esp_event_handler_instance_register(
-            INPUT_EVENTS, pin_, eventHandler, 0, nullptr);
+            INPUT_EVENTS, pin_, eventHandler, eventHandlerArgs, nullptr);
 
     if (ESP_OK == rc) {
         eventHandlerSet_ = true;
