@@ -9,7 +9,7 @@
 #include "esp_log.h"
 
 #include "SpiComms.h"
-#include "Adxl345.h"
+#include "ADXL345.h"
 #include "InputGpio.h"
 #include "OutputGpio.h"
 
@@ -118,24 +118,26 @@ extern "C" void app_main(void) {
      */
 
 
-    uint8_t allDataBuffer[6];
-    int16_t x_raw_data;
-    int16_t y_raw_data;
-    int16_t z_raw_data;
+    int16_t allDataBuffer[3];
+    // int16_t x_raw_data;
+    // int16_t y_raw_data;
+    // int16_t z_raw_data;
 
     while (true) {
+        /* POSSIBLE UNDEFINED BEHAVIOUR. casting int16 to uint8 to store data. But works ;) */
         comms.ReadRegisterMultipleBytes(REG_DATA_X0, allDataBuffer, sizeof(allDataBuffer), CMD_READ_BURST);
-        x_raw_data = (int16_t) ((allDataBuffer[1] << 8) + allDataBuffer[0]);
-        y_raw_data = (int16_t) ((allDataBuffer[3] << 8) + allDataBuffer[2]);
-        z_raw_data = (int16_t) ((allDataBuffer[5] << 8) + allDataBuffer[4]);
+        // x_raw_data = (int16_t) ((allDataBuffer[1] << 8) + allDataBuffer[0]);
+        // y_raw_data = (int16_t) ((allDataBuffer[3] << 8) + allDataBuffer[2]);
+        // z_raw_data = (int16_t) ((allDataBuffer[5] << 8) + allDataBuffer[4]);
 
         std::cout <<
                 "X: " <<
-                    (x_raw_data) * 0.00339F << " " <<
+                 /* Calibration constant vv        */
+                    (allDataBuffer[0]) * 0.00339F * 9.807F << " " <<
                 "Y: " <<
-                    (y_raw_data) * 0.00339F << " " <<
+                    (allDataBuffer[1]) * 0.00339F * 9.807F << " " <<
                 "Z: " <<
-                    (z_raw_data) * 0.0043F <<
+                    (allDataBuffer[2]) * 0.0043F * 9.807F << "m/s^2 " <<
         std::endl;
 
     // std::cout << "PIN 4 STATE: " << pin4.Read() << std::endl;
