@@ -9,14 +9,14 @@
  * Refrein from using pullup and pulldown at the same time.
  */
 
-bool accgpio::InputGpio::s_interruptServiceInstalled = false;
+bool InputGpio::s_interruptServiceInstalled = false;
 
 /* DEFINE event base */
-ESP_EVENT_DEFINE_BASE(accgpio::INPUT_EVENTS);
+ESP_EVENT_DEFINE_BASE(INPUT_EVENTS);
 
 /* ISR */
 /* Currently takes pin number as an argument */
-void IRAM_ATTR accgpio::InputGpio::ISRCallback(void* args) {
+void IRAM_ATTR InputGpio::ISRCallback(void* args) {
         int32_t pin = reinterpret_cast<int32_t>(args);
 
         /* Pose event to System Event Loop in INPUT_EVENTS group */
@@ -24,7 +24,7 @@ void IRAM_ATTR accgpio::InputGpio::ISRCallback(void* args) {
 }
 /******************************************************************************/
 
-accgpio::InputGpio::InputGpio(
+InputGpio::InputGpio(
         const gpio_num_t pin,
         const gpio_pullup_t pu,
         const gpio_pulldown_t pd) {
@@ -41,13 +41,13 @@ accgpio::InputGpio::InputGpio(
     gpio_config(&cfg);
 }
 
-int32_t accgpio::InputGpio::Read() {
+int32_t InputGpio::Read() {
     return gpio_get_level(pin_);
 }
 
 /* Interrupt related*/
 /******************************************************************************/
-esp_err_t accgpio::InputGpio::EnableInterrupt(gpio_int_type_t intType) {
+esp_err_t InputGpio::EnableInterrupt(gpio_int_type_t intType) {
     esp_err_t rc = ESP_OK;
 
     if (!s_interruptServiceInstalled) {
@@ -67,7 +67,7 @@ esp_err_t accgpio::InputGpio::EnableInterrupt(gpio_int_type_t intType) {
     return rc;
 }
 
-esp_err_t accgpio::InputGpio::SetEventHandler(
+esp_err_t InputGpio::SetEventHandler(
         esp_event_handler_t eventHandler,
         void* eventHandlerArgs) {
     esp_err_t rc = ESP_OK;

@@ -8,7 +8,7 @@
  * Refrein from using pullup and pulldown at the same time.
  */
 
-accgpio::OutputGpio::OutputGpio(
+OutputGpio::OutputGpio(
         const gpio_num_t pin,
         const gpio_pullup_t pu,
         const gpio_pulldown_t pd) {
@@ -25,12 +25,12 @@ accgpio::OutputGpio::OutputGpio(
         gpio_config(&cfg);
 }
 
-esp_err_t accgpio::OutputGpio::Toggle() {
+esp_err_t OutputGpio::Toggle() {
     level_ = level_ ? 0 : 1;
     return gpio_set_level(pin_, level_ ? 1 : 0);
 }
 
-esp_err_t accgpio::OutputGpio::SetLevel(int32_t level)
+esp_err_t OutputGpio::SetLevel(int32_t level)
 {
     return gpio_set_level(pin_, level_);
 }

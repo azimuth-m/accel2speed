@@ -6,8 +6,6 @@
 #include "driver/gpio.h"
 #include "esp_event.h" /* Used for interrupt handling. Event loop Library */
 
-namespace accgpio {
-
 /* DECLARE event base */
 ESP_EVENT_DECLARE_BASE(INPUT_EVENTS);
 
@@ -36,4 +34,3 @@ public:
      */
     static void IRAM_ATTR ISRCallback(void* args);
 };
-} /* namespace accgpio */

@@ -3,9 +3,7 @@
 #include "esp_err.h"
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
-#include "adxl345.h"
 
-namespace accspi {
 
 class Spi {
 private:
@@ -20,17 +18,17 @@ private:
     esp_err_t TransferByte(
             const uint8_t regAddr,
             const uint8_t data,
-            const uint8_t command = CMD_READ);
+            const uint8_t command);
 
     esp_err_t TransferMultipleBytes(
             const uint8_t regAddr,
-            uint8_t* txBuf,
-            uint8_t* rxBuf,
+            void* txBuf,
+            void* rxBuf,
             size_t dataLength,
-            const uint8_t command = CMD_READ);
+            const uint8_t command);
 
 public:
-    esp_err_t Init(
+    Spi(
             const spi_host_device_t spiPeripheral,
             const int pinMosi,
             const int pinMiso,
@@ -64,23 +62,34 @@ public:
 
     uint8_t ReadRegister(
             const uint8_t regAddr,
-            const uint8_t command = 0);
+            const uint8_t command);
 
     esp_err_t WriteRegister(
             const uint8_t regAddr,
             const uint8_t regData,
-            const uint8_t command = 0);
+            const uint8_t command);
+
+    esp_err_t SetBit(
+            const uint8_t regAddr,
+            const uint8_t bitIdx,
+            const uint8_t commandWrite,
+            const uint8_t commandRead);
+
+    esp_err_t ClearBit(
+        const uint8_t regAddr,
+        const uint8_t bitIdx,
+        const uint8_t commandWrite,
+        const uint8_t commandRead);
 
     esp_err_t WriteRegisterMultipleBytes(
             const uint8_t regAddr,
-            uint8_t* regDataBuffer,
+            void* regDataBuffer,
             const uint8_t byteCount,
-            const uint8_t command = 0);
+            const uint8_t command);
 
     esp_err_t ReadRegisterMultipleBytes(
             const uint8_t regAddr,
-            uint8_t* regDataBuffer,
+            void* regDataBuffer,
             const uint8_t byteCount,
-            const uint8_t command = 0);
+            const uint8_t command);
 }; /* class Spi */
-} /* namespace accspi */

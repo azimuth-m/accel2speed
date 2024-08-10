@@ -5,8 +5,6 @@
 #include "BaseGpio.h"
 #include "driver/gpio.h"
 
-namespace accgpio {
-
 class OutputGpio : public BaseGpio {
 private:
     int32_t level_ = 0;
@@ -19,4 +17,3 @@ public:
     esp_err_t Toggle();
     esp_err_t SetLevel(int32_t level);
 };
-} /* namespace accgpio */
