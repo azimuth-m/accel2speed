@@ -1,3 +1,4 @@
+#include <iostream>
 #include "esp_err.h"
 #include "esp_log.h"
 
@@ -9,6 +10,9 @@ void Adxl345::s_DataReadyEventHandler_(
         esp_event_base_t base,
         int32_t id,
         void* event_data) {
+    std::cout << "ENTERING ISR" << std::endl;
+    std::cout << "PIN: " << id << std::endl;
+    std::cout << "EXITING ISR" << std::endl;
 }
 
 Adxl345::Adxl345(
@@ -27,7 +31,7 @@ Adxl345::Adxl345(
     comms_.RegisterDevice(
             spiMode, masterCsPinNum, commandBitCnt, addressBitCnt, 0, busSpeedHz, 0, 0, 0);
     WakeUp_();
-    // EnableInterrupt_(intPin);
+    EnableInterrupt_(intPin);
 }
 
 int32_t Adxl345::WakeUp_() {
