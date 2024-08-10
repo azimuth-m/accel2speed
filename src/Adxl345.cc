@@ -10,9 +10,19 @@ void Adxl345::s_DataReadyEventHandler_(
         esp_event_base_t base,
         int32_t id,
         void* event_data) {
-    std::cout << "ENTERING ISR" << std::endl;
-    std::cout << "PIN: " << id << std::endl;
-    std::cout << "EXITING ISR" << std::endl;
+
+    Adxl345* objInstance = (Adxl345*) handler_args;
+    objInstance->ReadDataIntoBuffer(&objInstance->rawAccelData_, sizeof(rawAccelData_));
+
+    std::cout <<
+                "X: " <<
+                 /* Calibration constant vv        */
+                    (objInstance->rawAccelData_.xAccel) * 0.00339F * 9.807F << " " <<
+                "Y: " <<
+                    (objInstance->rawAccelData_.yAccel) * 0.00339F * 9.807F << " " <<
+                "Z: " <<
+                    (objInstance->rawAccelData_.zAccel) * 0.0043F * 9.807F << "m/s^2 " <<
+        std::endl;
 }
 
 Adxl345::Adxl345(
@@ -32,6 +42,7 @@ Adxl345::Adxl345(
             spiMode, masterCsPinNum, commandBitCnt, addressBitCnt, 0, busSpeedHz, 0, 0, 0);
     WakeUp_();
     EnableInterrupt_(intPin);
+
 }
 
 int32_t Adxl345::WakeUp_() {
@@ -49,7 +60,7 @@ int32_t Adxl345::EnableInterrupt_(intPin_t intPin) {
     auto rc = ESP_OK;
     rc |= esp_event_loop_create_default();
     rc |= masterIntPin_.EnableInterrupt(GPIO_INTR_POSEDGE);
-    rc |= masterIntPin_.SetEventHandler(&s_DataReadyEventHandler_);
+    rc |= masterIntPin_.SetEventHandler(&s_DataReadyEventHandler_, this);
     if (ESP_OK != rc) {
         ESP_LOGE("adxl345", "In function %s: Failed to setup master interrupts",
                 __func__);

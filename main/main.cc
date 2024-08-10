@@ -85,7 +85,7 @@ extern "C" void app_main(void) {
      */
 
 
-    int16_t allDataBuffer[3];
+    // int16_t allDataBuffer[3];
     // int16_t x_raw_data;
     // int16_t y_raw_data;
     // int16_t z_raw_data;
@@ -97,16 +97,16 @@ extern "C" void app_main(void) {
         // y_raw_data = (int16_t) ((allDataBuffer[3] << 8) + allDataBuffer[2]);
         // z_raw_data = (int16_t) ((allDataBuffer[5] << 8) + allDataBuffer[4]);
 
-        accMeter.ReadDataIntoBuffer(allDataBuffer, sizeof(allDataBuffer));
-        std::cout <<
-                "X: " <<
-                 /* Calibration constant vv        */
-                    (allDataBuffer[0]) * 0.00339F * 9.807F << " " <<
-                "Y: " <<
-                    (allDataBuffer[1]) * 0.00339F * 9.807F << " " <<
-                "Z: " <<
-                    (allDataBuffer[2]) * 0.0043F * 9.807F << "m/s^2 " <<
-        std::endl;
+        // accMeter.ReadDataIntoBuffer(allDataBuffer, sizeof(allDataBuffer));
+        // std::cout <<
+        //         "X: " <<
+        //          /* Calibration constant vv        */
+        //             (allDataBuffer[0]) * 0.00339F * 9.807F << " " <<
+        //         "Y: " <<
+        //             (allDataBuffer[1]) * 0.00339F * 9.807F << " " <<
+        //         "Z: " <<
+        //             (allDataBuffer[2]) * 0.0043F * 9.807F << "m/s^2 " <<
+        // std::endl;
 
     // std::cout << "PIN 4 STATE: " << pin4.Read() << std::endl;
     }
