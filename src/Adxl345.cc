@@ -1,4 +1,5 @@
-#include <iostream>
+#include <vector>
+
 #include "esp_err.h"
 #include "esp_log.h"
 
@@ -14,15 +15,48 @@ void Adxl345::s_DataReadyEventHandler_(
     Adxl345* objInstance = (Adxl345*) handler_args;
     objInstance->ReadDataIntoBuffer(&objInstance->rawAccelData_, sizeof(rawAccelData_));
 
-    std::cout <<
-                "X: " <<
-                 /* Calibration constant vv        */
-                    (objInstance->rawAccelData_.xAccel) * 0.00339F * 9.807F << " " <<
-                "Y: " <<
-                    (objInstance->rawAccelData_.yAccel) * 0.00339F * 9.807F << " " <<
-                "Z: " <<
-                    (objInstance->rawAccelData_.zAccel) * 0.0043F * 9.807F << "m/s^2 " <<
-        std::endl;
+}
+
+/* Quake's fast inverse square root algorithm */
+inline float Adxl345::Q_rsqrt(float number) {
+    const float threehalfs = 1.5F;
+
+    float x2 = number * 0.5F;
+    float y = number;
+    long i = *(long*)&y;  // evil floating-point bit level hacking
+    i = 0x5f3759df - (i >> 1);  // what the fuck?
+
+    y = *(float*)&i;
+    y = y * (threehalfs - (x2 * y * y));  // 1st iteration
+    y = y * (threehalfs - (x2 * y * y));  // 2nd iteration, if needed
+
+    return y;
+}
+
+inline float Adxl345::FastMagnitude(float x, float y) {
+    return x * x + y * y * Q_rsqrt(x * x + y * y);
+}
+
+/* Using rectangular numeric integration */
+inline float Adxl345::CalcVelocityRectangular(float a, float v, float dt) {
+    return v + a * dt;
+}
+
+inline float Adxl345::CalcVelocityTrapezoidal(
+        const std::vector<float>& a,
+        double dt) {
+
+    const uint8_t aLen = a.size();
+    float v = 0.0;
+    v += a[0];
+
+    for (int i = 1; i < aLen - 1; i++) {
+        v += 2 * a[i];
+    }
+    v += a[aLen - 1];
+    v *= dt / 2.0;
+
+    return v;
 }
 
 Adxl345::Adxl345(
@@ -36,8 +70,10 @@ Adxl345::Adxl345(
         const Spi comms)
     : masterIntPin_(masterIntPin),
       comms_(comms),
+      busSpeedHz_(busSpeedHz),
       initialVelocity_(0) {
 
+    accelMagnitudeXY_.reserve(bufferLen_);
     comms_.RegisterDevice(
             spiMode, masterCsPinNum, commandBitCnt, addressBitCnt, 0, busSpeedHz, 0, 0, 0);
     WakeUp_();

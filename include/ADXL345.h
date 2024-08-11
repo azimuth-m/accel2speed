@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <atomic>
+#include <vector>
 
 #include "esp_event.h"
 
@@ -56,18 +56,16 @@ private:
 
     InputGpio masterIntPin_;
     Spi comms_;
-    // static constexpr uint32_t bufferLen_ = 0x10;
 
-    /* TODO: Add low pass filter */
     AxisAccelerationData_t rawAccelData_;
-    AxisAccelerationData_t averagedAccel_;
 
-    const uint8_t initialVelocity_;
-    uint8_t currentVelocity_;
+    static constexpr uint32_t bufferLen_ = 0x10;
+    std::vector<float> accelMagnitudeXY_;
 
-    int16_t magAccel_;
-
-    std::atomic<bool> processingData_;
+    const uint8_t busSpeedHz_;
+    const float sampingRateS_ = 1.0 / busSpeedHz_;
+    const float initialVelocity_;
+    float currentVelocity_;
 
     static void s_DataReadyEventHandler_(
         void* handerArgs,
@@ -91,5 +89,13 @@ public:
         const Spi comms);
 
     esp_err_t ReadDataIntoBuffer(void* buffer, uint8_t byteCnt);
+
+    float Q_rsqrt(float number);
+    float FastMagnitude(float x, float y);
+
+    float CalcVelocityTrapezoidal(
+        const std::vector<float>& a,
+        double dt);
+    float CalcVelocityRectangular(float a, float v, float dt);
 
 };
