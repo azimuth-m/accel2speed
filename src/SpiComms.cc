@@ -130,7 +130,7 @@ esp_err_t Spi::SetBit(
     return Spi::WriteRegister(regAddr, oldValue, commandWrite);
 }
 
-esp_err_t Spi::ClearBit(
+esp_err_t Spi::ClrBit(
         const uint8_t regAddr,
         const uint8_t bitIdx,
         const uint8_t commandWrite,

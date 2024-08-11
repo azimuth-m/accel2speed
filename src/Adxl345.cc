@@ -14,7 +14,6 @@ void Adxl345::s_DataReadyEventHandler_(
 
     Adxl345* objInstance = (Adxl345*) handler_args;
     objInstance->ReadDataIntoBuffer(&objInstance->rawAccelData_, sizeof(rawAccelData_));
-
 }
 
 /* Quake's fast inverse square root algorithm */
@@ -50,7 +49,7 @@ inline float Adxl345::CalcVelocityTrapezoidal(
     float v = 0.0;
     v += a[0];
 
-    for (int i = 1; i < aLen - 1; i++) {
+    for (int i = 0; i < aLen - 1; i++) {
         v += 2 * a[i];
     }
     v += a[aLen - 1];
@@ -60,7 +59,7 @@ inline float Adxl345::CalcVelocityTrapezoidal(
 }
 
 Adxl345::Adxl345(
-        const intPin_t intPin,
+        const IntPin_t intPin,
         const InputGpio masterIntPin,
         const int masterCsPinNum,
         const uint8_t spiMode,
@@ -92,36 +91,79 @@ int32_t Adxl345::WakeUp_() {
     return rc;
 }
 
-int32_t Adxl345::EnableInterrupt_(intPin_t intPin) {
+int32_t Adxl345::EnableInterrupt_(IntPin_t intPin) {
     auto rc = ESP_OK;
-    rc |= esp_event_loop_create_default();
-    rc |= masterIntPin_.EnableInterrupt(GPIO_INTR_POSEDGE);
-    rc |= masterIntPin_.SetEventHandler(&s_DataReadyEventHandler_, this);
-    if (ESP_OK != rc) {
-        ESP_LOGE("adxl345", "In function %s: Failed to setup master interrupts",
-                __func__);
-        return rc;
-    }
 
     /* Setup slave interrupt generation */
     switch (intPin) {
         case INT_PIN::INT1: {
-            rc |= comms_.SetBit(REG::INT_ENABLE, 7, CMD::WRITE, CMD::READ);
-            rc |= comms_.ClearBit(REG::INT_MAP, 7, CMD::WRITE, CMD::READ);
+            rc |= esp_event_loop_create_default();
+            rc |= masterIntPin_.EnableInterrupt(GPIO_INTR_POSEDGE);
+            rc |= masterIntPin_.SetEventHandler(
+                    &s_DataReadyEventHandler_, this);
+            rc |= comms_.SetBit(
+                    REG::INT_ENABLE, POS::D7, CMD::WRITE, CMD::READ);
+            rc |= comms_.ClrBit(
+                    REG::INT_MAP, POS::D7, CMD::WRITE, CMD::READ);
             return rc;
-            break;
         }
 
         case INT_PIN::INT2: {
-            rc |= comms_.SetBit(REG::INT_ENABLE, 7, CMD::WRITE, CMD::READ);
-            rc |= comms_.SetBit(REG::INT_MAP, 7, CMD::WRITE, CMD::READ);
+            rc |= esp_event_loop_create_default();
+            rc |= masterIntPin_.EnableInterrupt(GPIO_INTR_POSEDGE);
+            rc |= masterIntPin_.SetEventHandler(
+                    &s_DataReadyEventHandler_, this);
+            rc |= comms_.SetBit(
+                    REG::INT_ENABLE, POS::D7, CMD::WRITE, CMD::READ);
+            rc |= comms_.SetBit(
+                    REG::INT_MAP, POS::D7, CMD::WRITE, CMD::READ);
             return rc;
-            break;
         }
 
         default: {
+            return ESP_FAIL;
+        }
+    }
+}
+
+int32_t Adxl345::SetFullResolution_() {
+    return comms_.SetBit(REG::DATA_FORMAT, POS::D3, CMD::WRITE, CMD::READ);
+}
+
+int32_t Adxl345::SetGRange_(AccRange_t range) {
+    auto rc = ESP_OK;
+    switch (range) {
+        case ACC_RANGE::G4: {
+            rc |= comms_.SetBit(
+                    REG::DATA_FORMAT, POS::D0, CMD::WRITE, CMD::READ);
+            rc |= comms_.ClrBit(
+                    REG::DATA_FORMAT, POS::D1, CMD::WRITE, CMD::READ);
             return rc;
-            break;
+        }
+
+        case ACC_RANGE::G8: {
+            rc |= comms_.ClrBit(
+                    REG::DATA_FORMAT, POS::D0, CMD::WRITE, CMD::READ);
+            rc |= comms_.SetBit(
+                    REG::DATA_FORMAT, POS::D1, CMD::WRITE, CMD::READ);
+            return rc;
+        }
+
+        case ACC_RANGE::G16: {
+            rc |= comms_.SetBit(
+                    REG::DATA_FORMAT, POS::D0, CMD::WRITE, CMD::READ);
+            rc |= comms_.SetBit(
+                    REG::DATA_FORMAT, POS::D1, CMD::WRITE, CMD::READ);
+            return rc;
+        }
+
+        /* Default is 2g */
+        default: {
+            rc |= comms_.ClrBit(
+                    REG::DATA_FORMAT, POS::D0, CMD::WRITE, CMD::READ);
+            rc |= comms_.ClrBit(
+                    REG::DATA_FORMAT, POS::D1, CMD::WRITE, CMD::READ);
+            return rc;
         }
     }
 }

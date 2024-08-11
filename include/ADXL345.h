@@ -22,6 +22,7 @@ enum REG {
     POWER_CTL   = 0x2Du,
     INT_ENABLE  = 0x2Eu, /* | (1ULL << 7) to enable DATA_READY int out */
     INT_MAP     = 0x2Fu, /* & ~(1ULL << 7) set data out to be int1 pin */
+    DATA_FORMAT = 0x31u, /* Range settings: 2, 4, 8, 16 g*/
     DATA_X0     = 0x32u,
     DATA_X1     = 0x33u,
     DATA_Y0     = 0x34u,
@@ -30,6 +31,17 @@ enum REG {
     DATA_Z1     = 0x37u,
     FIFO_CTL    = 0x38u
 };
+
+enum POS {
+    D0 = 0,
+    D1 = 1,
+    D2 = 2,
+    D3 = 3,
+    D4 = 4,
+    D5 = 5,
+    D6 = 6,
+    D7 = 7
+    };
 
 /* SPI comminucation commands. Command bits are 2 */
 enum CMD {
@@ -42,7 +54,14 @@ enum CMD {
 typedef enum INT_PIN {
     INT1 = 0,
     INT2 = 1
-} intPin_t;
+} IntPin_t;
+
+typedef enum ACC_RANGE {
+    G2  = 0b00,
+    G4  = 0b01,
+    G8  = 0b10,
+    G16 = 0b11
+} AccRange_t;
 
 /* Acceleration data placeholder */
 typedef struct AxisAccelerationData {
@@ -75,11 +94,14 @@ private:
     );
 
     int32_t WakeUp_();
-    int32_t EnableInterrupt_(intPin_t intPin);
+    int32_t EnableInterrupt_(IntPin_t intPin);
+    int32_t SetFullResolution_();
+    int32_t SetGRange_(AccRange_t range);
+    int32_t SetDataRate_();
 
 public:
     Adxl345(
-        const intPin_t intPin,
+        const IntPin_t intPin,
         const InputGpio masterIntPin,
         const int masterCsPinNum,
         const uint8_t spiMode,

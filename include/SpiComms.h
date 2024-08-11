@@ -75,7 +75,7 @@ public:
             const uint8_t commandWrite,
             const uint8_t commandRead);
 
-    esp_err_t ClearBit(
+    esp_err_t ClrBit(
         const uint8_t regAddr,
         const uint8_t bitIdx,
         const uint8_t commandWrite,
