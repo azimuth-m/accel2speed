@@ -31,7 +31,8 @@ extern "C" void app_main(void) {
                 GPIO_PULLDOWN_ENABLE),
             PIN_CS_V,
             SPI_MODE, CMD_BITS, ADR_BITS, 5e+6,
-            Spi(SPI3_HOST, PIN_MOSI_V, PIN_MISO_V, PIN_SCLK_V));
+            Spi(SPI3_HOST, PIN_MOSI_V, PIN_MISO_V, PIN_SCLK_V),
+            ACC_RANGE::G2, ACC_BANDW::BW16);
 
     // SPI1 is internal (not accessible)
     // SPI2 is HSPI

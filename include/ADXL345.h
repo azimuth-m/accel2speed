@@ -63,6 +63,12 @@ typedef enum ACC_RANGE {
     G16 = 0b11
 } AccRange_t;
 
+typedef enum ACC_BANDW {
+    BW16,
+    BW8,
+    BW4
+} AccBandwidth_t;
+
 /* Acceleration data placeholder */
 typedef struct AxisAccelerationData {
     int16_t xAccel;
@@ -75,15 +81,13 @@ private:
 
     InputGpio masterIntPin_;
     Spi comms_;
+    const uint8_t busSpeedHz_;
+
+    const AccRange_t range_;
+    const AccBandwidth_t bandwidth_;
+    uint32_t bandwidthHz_;
 
     AxisAccelerationData_t rawAccelData_;
-
-    static constexpr uint32_t bufferLen_ = 0x10;
-    std::vector<float> accelMagnitudeXY_;
-
-    const uint8_t busSpeedHz_;
-    const float sampingRateS_ = 1.0 / busSpeedHz_;
-    const float initialVelocity_;
     float currentVelocity_;
 
     static void s_DataReadyEventHandler_(
@@ -95,29 +99,27 @@ private:
 
     int32_t WakeUp_();
     int32_t EnableInterrupt_(IntPin_t intPin);
-    int32_t SetFullResolution_();
-    int32_t SetGRange_(AccRange_t range);
-    int32_t SetDataRate_();
+    int32_t SetSensFullResolution_();
+    int32_t SetSensGRange_();
+    int32_t SetSensOutDataRate_();
+
+    esp_err_t ReadDataIntoBuffer_(void* buffer, uint8_t byteCnt);
+
+    float Q_rsqrt_(float number);
+    float FastMagnitude_(float x, float y);
+    float CalcVelocityRectangular_(float a, float v, float dt);
 
 public:
+
     Adxl345(
-        const IntPin_t intPin,
-        const InputGpio masterIntPin,
-        const int masterCsPinNum,
-        const uint8_t spiMode,
-        const uint8_t commandBitCnt,
-        const uint8_t addressBitCnt,
-        const int busSpeedHz,
-        const Spi comms);
-
-    esp_err_t ReadDataIntoBuffer(void* buffer, uint8_t byteCnt);
-
-    float Q_rsqrt(float number);
-    float FastMagnitude(float x, float y);
-
-    float CalcVelocityTrapezoidal(
-        const std::vector<float>& a,
-        double dt);
-    float CalcVelocityRectangular(float a, float v, float dt);
-
+        IntPin_t intPin,
+        InputGpio masterIntPin,
+        int masterCsPinNum,
+        uint8_t spiMode,
+        uint8_t commandBitCnt,
+        uint8_t addressBitCnt,
+        int busSpeedHz,
+        Spi comms,
+        AccRange_t gRange,
+        AccBandwidth_t bandwidth);
 };
